@@ -1,8 +1,12 @@
-
+import Idsspl from "./Idsspl";
 
 function App() {
   return (
-    <h1>start new react project | how to start react project |  </h1>
+    <>
+    <Idsspl />
+    <p>text para</p>
+    <h1>new project</h1>
+    </>
   );
 }
 
