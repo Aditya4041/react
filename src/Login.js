@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css';
 
-function Login() {
+function Login({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
     branch: '',
     username: '',
@@ -17,6 +17,12 @@ function Login() {
     { code: '0002', name: '0002 — Branch 2 - Belgaum' },
     { code: '0003', name: '0003 — Branch 3 - Dharwad' },
   ];
+
+  // Get branch name from code
+  const getBranchName = (code) => {
+    const branch = branches.find(b => b.code === code);
+    return branch ? branch.name : 'Unknown Branch';
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,8 +66,16 @@ function Login() {
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
-      console.log('Login attempted with:', formData);
-      alert(`Welcome, ${formData.username}!`);
+      console.log('Login successful:', formData);
+      
+      // Get the full branch name
+      const branchName = getBranchName(formData.branch);
+      
+      // Call the callback to update parent state and navigate
+      if (onLoginSuccess) {
+        onLoginSuccess(formData.username, formData.branch, branchName);
+      }
+      
       setIsLoading(false);
     }, 1500);
   };
