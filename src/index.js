@@ -1,20 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Idsspl from './Idsspl';
+//import Idsspl from './Idsspl';
 import App from './App';
-import Main from './Main'
+//import Main from './Main'
 
-const adi = ReactDOM.createRoot(document.getElementById('adi'));
+//const adi = ReactDOM.createRoot(document.getElementById('adi'));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
-    <Idsspl />
+    <App /> 
   </React.StrictMode>
 );
 
-adi.render(
-  <>
-  <Main />
-  </>
-)
+//adi.render(
+//  <>
+//  <Main />
+// </>
+//)

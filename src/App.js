@@ -1,12 +1,11 @@
-import Idsspl from "./Idsspl";
+import Login from "./Login";
+import "./App.css";
 
 function App() {
   return (
-    <>
-    <Idsspl />
-    <p>text para</p>
-    <h1>new project</h1>
-    </>
+    <div className="App">
+      <Login />
+    </div>
   );
 }
 
