@@ -1,6 +1,7 @@
 import React from 'react';
 import './pages.css';
 export { default as Transactions } from './Transactions';
+export { default as AddCustomer } from './AddCustomer';
 
 function PageFrame({ title, icon, children }) {
   return (
@@ -15,58 +16,7 @@ function PageFrame({ title, icon, children }) {
   );
 }
 
-export function AddCustomer() {
-  return (
-    <PageFrame title="Add Customer" icon="👤">
-      <div className="pf-form-grid">
-        <div className="pf-section">
-          <h3 className="pf-section-title">Personal Information</h3>
-          <div className="pf-fields">
-            {[
-              { label: 'First Name',    type: 'text',   ph: 'Enter first name' },
-              { label: 'Last Name',     type: 'text',   ph: 'Enter last name' },
-              { label: 'Date of Birth', type: 'date',   ph: '' },
-              { label: 'Gender',        type: 'select', opts: ['Select', 'Male', 'Female', 'Other'] },
-              { label: 'Mobile Number', type: 'tel',    ph: '+91 XXXXX XXXXX' },
-              { label: 'Email Address', type: 'email',  ph: 'customer@email.com' },
-            ].map((f, i) => (
-              <div className="pf-field" key={i}>
-                <label className="pf-label">{f.label}</label>
-                {f.type === 'select'
-                  ? <select className="pf-input">{f.opts.map(o => <option key={o}>{o}</option>)}</select>
-                  : <input type={f.type} className="pf-input" placeholder={f.ph} />}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="pf-section">
-          <h3 className="pf-section-title">Address Details</h3>
-          <div className="pf-fields">
-            {[
-              { label: 'Address Line 1', type: 'text',   ph: 'House / Flat No.' },
-              { label: 'Address Line 2', type: 'text',   ph: 'Street / Area' },
-              { label: 'City',           type: 'text',   ph: 'City' },
-              { label: 'State',          type: 'select', opts: ['Select State', 'Karnataka', 'Maharashtra', 'Goa'] },
-              { label: 'PIN Code',       type: 'text',   ph: '5XXXXX' },
-              { label: 'Aadhar Number',  type: 'text',   ph: 'XXXX XXXX XXXX' },
-            ].map((f, i) => (
-              <div className="pf-field" key={i}>
-                <label className="pf-label">{f.label}</label>
-                {f.type === 'select'
-                  ? <select className="pf-input">{f.opts.map(o => <option key={o}>{o}</option>)}</select>
-                  : <input type={f.type} className="pf-input" placeholder={f.ph} />}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="pf-actions">
-        <button className="pf-btn pf-btn-ghost">Clear</button>
-        <button className="pf-btn pf-btn-primary">Save Customer</button>
-      </div>
-    </PageFrame>
-  );
-}
+
 
 export function Authorization() {
   const rows = [

@@ -1,0 +1,623 @@
+/* ============================================
+   ADD CUSTOMER — LOGIN-STYLE CSS
+   Same underline inputs, same labels, same color scheme
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ─── Tokens (match login app exactly) ─── */
+:root {
+  --ac-accent:      #3563d4;       /* login button blue */
+  --ac-accent-dk:   #2b4db0;
+  --ac-accent-lt:   #eef2ff;
+  --ac-brand:       #373279;       /* legacy JSP purple for KYC titles */
+  --ac-text-1:      #1a1a2e;
+  --ac-text-2:      #6b7a90;
+  --ac-text-3:      #aab4c0;
+  --ac-border:      #c8d0dc;       /* same as login input border */
+  --ac-border-focus:#3563d4;
+  --ac-bg:          #f0f4f8;
+  --ac-card:        #ffffff;
+  --ac-radius:      12px;
+  --ac-green:       #22c55e;
+  --ac-green-lt:    #dcfce7;
+  --ac-red:         #ef4444;
+  --ac-red-lt:      #fee2e2;
+  --ac-ease:        0.2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ─── Root wrapper ─── */
+.ac-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--ac-bg);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: var(--ac-text-1);
+  border-radius: var(--ac-radius);
+  overflow: hidden;
+  animation: ac-rise 0.28s ease both;
+}
+
+@keyframes ac-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════════════════════
+   TAB NAVIGATION  — matches tabs-navigation.css
+════════════════════════════════════════════ */
+.ac-tab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 3px solid var(--ac-brand);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.ac-tab-list {
+  display: flex;
+  list-style: none;
+  margin: 0; padding: 0;
+  background: linear-gradient(135deg, #e8e4fc 0%, #d4cef7 100%);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ac-tab-item {
+  flex: 1;
+  position: relative;
+}
+
+.ac-tab-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 24px;
+  background: rgba(55,50,121,0.2);
+}
+
+.ac-tab-btn {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--ac-ease);
+}
+
+.ac-tab-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #ccc;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--ac-ease);
+}
+
+.ac-tab-btn--enabled { cursor: pointer; color: #555; }
+.ac-tab-btn--enabled:hover { background: rgba(55,50,121,0.05); color: var(--ac-brand); }
+.ac-tab-btn--enabled .ac-tab-num { background: #7c73b8; }
+
+.ac-tab-btn--active {
+  cursor: pointer;
+  color: var(--ac-brand);
+  background: rgba(55,50,121,0.08);
+}
+.ac-tab-btn--active .ac-tab-num {
+  background: var(--ac-brand);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(55,50,121,0.3);
+}
+
+.ac-tab-btn--completed .ac-tab-num {
+  background: #4caf50;
+}
+
+/* Progress bar */
+.ac-progress-bar-wrap {
+  height: 4px;
+  background: #e0e0e0;
+}
+.ac-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50 0%, #45a049 100%);
+  transition: width 0.4s ease;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.4);
+}
+
+/* ════════════════════════════════════════════
+   BODY
+════════════════════════════════════════════ */
+.ac-body {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+/* ════════════════════════════════════════════
+   SECTION CARD
+════════════════════════════════════════════ */
+.ac-section-card {
+  background: var(--ac-card);
+  border: 1.5px solid #d6dbdf;
+  border-radius: var(--ac-radius);
+  padding: 28px 32px 32px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.ac-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e8ecf0;
+}
+
+.ac-section-dot {
+  width: 4px; height: 22px;
+  background: var(--ac-accent);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.ac-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ac-text-1);
+  letter-spacing: 0.3px;
+}
+
+/* ════════════════════════════════════════════
+   FORM GRIDS
+════════════════════════════════════════════ */
+.ac-grid {
+  display: grid;
+  gap: 22px 24px;
+}
+.ac-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.ac-grid--3 { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 1100px) {
+  .ac-grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 800px) {
+  .ac-grid--4, .ac-grid--3 { grid-template-columns: 1fr; }
+}
+
+/* ════════════════════════════════════════════
+   FIELD — LOGIN STYLE (underline only, same as Login.js)
+════════════════════════════════════════════ */
+.ac-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label — same look as .form-label in Login.css */
+.ac-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ac-text-2);
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+
+.ac-req {
+  color: var(--ac-red);
+  margin-left: 2px;
+  font-size: 13px;
+}
+
+/* Input — same as .form-input in Login.css */
+.ac-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid var(--ac-border);
+  border-radius: 0;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ac-text-1);
+  padding: 6px 0 8px 0;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.ac-input::placeholder { color: var(--ac-text-3); font-weight: 400; }
+.ac-input:focus { border-bottom-color: var(--ac-border-focus); }
+
+.ac-input:read-only,
+.ac-input[readOnly],
+.ac-input:disabled {
+  background: transparent;
+  color: var(--ac-text-3);
+  border-bottom-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.ac-input:read-only:focus,
+.ac-input[readOnly]:focus,
+.ac-input:disabled:focus {
+  border-bottom-color: #e0e0e0;
+}
+
+.ac-input--error {
+  border-bottom-color: var(--ac-red);
+}
+
+.ac-input--sm {
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.ac-input--sm:focus {
+  border-color: var(--ac-accent);
+  border-bottom-color: var(--ac-accent);
+  outline: none;
+}
+
+.ac-input--sm:disabled {
+  background: #f5f5f5;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Select arrow — same as Login.css .select-input */
+select.ac-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aab4c0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+  padding-right: 18px;
+  cursor: pointer;
+}
+
+select.ac-input option { background: #fff; color: var(--ac-text-1); }
+
+/* Error text */
+.ac-error-text {
+  font-size: 11px;
+  color: var(--ac-red);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ─── Radio group — same as Login.css ─── */
+.ac-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0 8px;
+  border-bottom: 1.5px solid var(--ac-border);
+}
+
+.ac-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ac-text-1);
+  cursor: pointer;
+}
+
+.ac-radio-label input[type="radio"] {
+  accent-color: var(--ac-accent);
+  width: 14px; height: 14px;
+  cursor: pointer;
+}
+
+/* ════════════════════════════════════════════
+   KYC SECTION
+════════════════════════════════════════════ */
+.ac-kyc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+@media (max-width: 900px) { .ac-kyc-grid { grid-template-columns: 1fr; } }
+
+.ac-kyc-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ac-brand);
+  text-align: center;
+  text-decoration: underline;
+  margin-bottom: 12px;
+}
+
+.ac-kyc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.ac-kyc-table thead tr {
+  background: var(--ac-brand);
+  color: #fff;
+}
+
+.ac-kyc-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.ac-kyc-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ede9fc;
+  color: var(--ac-text-1);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.ac-kyc-table tbody tr:hover td { background: #f5f3ff; }
+
+.ac-kyc-doc-label { font-size: 12.5px; white-space: nowrap; }
+
+.ac-checkbox {
+  width: 16px; height: 16px;
+  cursor: pointer;
+  accent-color: var(--ac-brand);
+}
+
+.ac-kyc-error {
+  background: var(--ac-red-lt);
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: #b91c1c;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ════════════════════════════════════════════
+   UPLOAD CARDS — same design as JSP version
+════════════════════════════════════════════ */
+.ac-upload-grid {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+
+.ac-upload-card {
+  background: #f5f3ff;
+  border: 2px dashed #9c8ed8;
+  border-radius: 16px;
+  padding: 30px 28px;
+  width: 280px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.ac-upload-card:hover {
+  border-color: var(--ac-brand);
+  background: #ede9ff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(55,50,121,0.12);
+}
+
+.ac-upload-card--error {
+  border-color: var(--ac-red);
+  background: var(--ac-red-lt);
+}
+
+.ac-upload-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ac-brand);
+  margin: 0 0 16px;
+}
+
+.ac-upload-preview {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: #e8e4fc;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ac-upload-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.ac-upload-placeholder { font-size: 40px; }
+
+.ac-upload-hint {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 18px;
+}
+
+.ac-upload-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ════════════════════════════════════════════
+   BUTTONS — same as login .login-button
+════════════════════════════════════════════ */
+.ac-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--ac-ease);
+  white-space: nowrap;
+}
+
+.ac-btn:active { transform: scale(0.98); }
+.ac-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Primary — matches .login-button */
+.ac-btn--primary {
+  background: #4361d8;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(67,97,216,0.28);
+}
+.ac-btn--primary:hover:not(:disabled) {
+  background: var(--ac-accent-dk);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(67,97,216,0.38);
+}
+
+/* Ghost */
+.ac-btn--ghost {
+  background: #f1f5f9;
+  color: var(--ac-text-2);
+  border: 1.5px solid #dde2e9;
+}
+.ac-btn--ghost:hover:not(:disabled) { background: #e2e8f0; }
+
+/* Outline — for upload buttons */
+.ac-btn--outline {
+  background: var(--ac-brand);
+  color: #fff;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 7px;
+}
+.ac-btn--outline:hover { background: #2b0d73; transform: scale(1.03); }
+
+/* ════════════════════════════════════════════
+   NAVIGATION BUTTONS BAR
+════════════════════════════════════════════ */
+.ac-nav-btns {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px 20px;
+  background: #fff;
+  border-top: 1px solid #e8ecf0;
+  gap: 16px;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+}
+
+.ac-step-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ac-text-2);
+}
+
+.ac-last-btns {
+  display: flex;
+  gap: 10px;
+}
+
+/* ════════════════════════════════════════════
+   MODAL — same as MainLayout logout modal
+════════════════════════════════════════════ */
+.ac-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ac-fade 0.18s ease;
+}
+
+@keyframes ac-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.ac-modal {
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 36px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.16);
+  animation: ac-pop 0.26s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes ac-pop {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.ac-modal-icon {
+  font-size: 48px;
+  color: var(--ac-green);
+  margin-bottom: 12px;
+}
+
+.ac-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ac-text-1);
+  margin-bottom: 8px;
+}
+
+.ac-modal-body {
+  font-size: 14px;
+  color: var(--ac-text-2);
+  margin-bottom: 24px;
+}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════ */
+@media (max-width: 680px) {
+  .ac-body { padding: 14px; }
+  .ac-section-card { padding: 18px 16px; }
+  .ac-nav-btns { padding: 12px 14px; flex-wrap: wrap; }
+  .ac-tab-btn { font-size: 11px; padding: 8px 6px; }
+  .ac-tab-label { display: none; }
+  .ac-upload-card { width: 100%; max-width: 340px; }
+  .ac-upload-grid { flex-direction: column; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .ac-tab-num { width: 20px; height: 20px; font-size: 10px; }
+}
+
+/* Hide number spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
