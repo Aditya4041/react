@@ -17,13 +17,13 @@ const css = `
   --radius:6px;
 }
 body{font-family:'Inter',sans-serif;background:var(--bg-page);margin:0;}
-.page{min-height:100vh;background:var(--bg-page);padding:24px;font-family:'Inter',sans-serif}
+.page{min-height:100vh;background:var(--bg-page);border-radius: 11px;font-family:'Inter',sans-serif}
 .card{background:var(--bg-card);border-radius:14px;border:1.5px solid #d1c4f0;
   padding:22px 26px 26px;box-shadow:0 2px 16px rgba(55,48,163,.07)}
 .card-title{font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:18px}
 
 /* ── Radio pills ── */
-.radio-row{display:flex;align-items:center;gap:28px;margin-bottom:20px;flex-wrap:wrap}
+.radio-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .radio-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .group-label{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;margin-right:2px}
 .radio-pill{display:flex;align-items:center;gap:7px;padding:var(--btn-pad);border-radius:var(--radius);
@@ -37,10 +37,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg-page);margin:0;}
 .radio-inner{width:8px;height:8px;border-radius:50%;background:var(--primary);display:none}
 .radio-pill.sel .radio-inner{display:block}
 
-/* ── Transfer strip ── */
-.transfer-strip{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  padding:10px 14px;background:var(--primary-bg);border:1.5px solid var(--primary-border);
-  border-radius:var(--radius);margin-bottom:16px}
+/* ── Transfer strip — now inline, no extra margin ── */
+.transfer-strip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:8px 12px;background:var(--primary-bg);border:1.5px solid var(--primary-border);
+  border-radius:var(--radius)}
 .strip-label{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap}
 #opTypeSel{font-weight:700;color:#fff;border-radius:var(--radius);padding:var(--btn-pad);
   border:1.5px solid var(--primary-border);font-size:13px;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
@@ -53,7 +53,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg-page);margin:0;}
 .tallied-msg{color:#059669;font-weight:700;font-size:14px}
 
 /* ── Main fields row ── */
-.fields-row{display:flex;align-items:flex-end;gap:12px;flex-wrap:nowrap;margin-bottom:14px}
+.fields-row{display:flex;align-items:flex-start;gap:12px;flex-wrap:nowrap;margin-bottom:14px}
 .field{display:flex;flex-direction:column;gap:5px}
 .field-label{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:.3px}
 
@@ -80,12 +80,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg-page);margin:0;}
   cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
 .btn-dots{background:var(--primary-dark);color:#fff;font-size:15px;line-height:1;flex-shrink:0}
 .btn-dots:hover{background:var(--primary)}
-.btn-add{background:var(--primary-dark);color:#fff;font-size:16px;align-self:flex-end}
+.btn-add{background:var(--primary-dark);color:#fff;font-size:16px;align-self:center}
 .btn-add:hover{background:var(--primary)}
-.btn-save{background:var(--primary-dark);color:#fff;padding:9px 22px;align-self:flex-end}
+.btn-save{background:var(--primary-dark);color:#fff;padding:9px 22px;align-self:center}
 .btn-save:hover{background:var(--primary);transform:translateY(-1px)}
 .btn-save:active{transform:translateY(0)}
-.search-hint{font-size:11px;color:var(--text-light);font-style:italic;margin-top:2px}
+/* hint sits below the code-wrap */
+.search-hint{font-size:11px;color:var(--text-light);font-style:italic;margin-top:3px}
 
 /* ── Live search dropdown ── */
 .search-wrap{position:relative}
@@ -102,7 +103,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg-page);margin:0;}
 .hl{background:#fef08a;font-weight:700;padding:0 2px;border-radius:2px}
 
 /* ── Cheque row ── */
-.cheque-row{display:none;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px;
+.cheque-row{display:none;align-items:flex-end;gap:12px;justify-content: center;flex-wrap:wrap;margin-bottom:14px;
   animation:fadeIn .25s ease}
 .cheque-row.on{display:flex}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
@@ -409,13 +410,14 @@ export default function Transactions() {
         <div className="card">
           <div className="card-title">Transaction Details</div>
 
-          {/* ── Radio row ── */}
+          {/* ── Radio row + inline transfer strip ── */}
           <div className="radio-row">
             <div className="radio-group">
               <span className="group-label">Transaction Type:</span>
-              <Pill label="Regular"  val="regular"  cur={txType} onChange={v=>{setTxType(v);clearAll();if(v==="closing")setOpType("deposit")}}/>
-              <Pill label="Closing"  val="closing"  cur={txType} onChange={v=>{setTxType(v);clearAll()}}/>
+              <Pill label="Regular" val="regular" cur={txType} onChange={v=>{setTxType(v);clearAll();if(v==="closing")setOpType("deposit")}}/>
+              <Pill label="Closing" val="closing" cur={txType} onChange={v=>{setTxType(v);clearAll()}}/>
             </div>
+
             {txType!=="closing"&&(
               <div className="radio-group">
                 <span className="group-label">Operation Type:</span>
@@ -424,36 +426,37 @@ export default function Transactions() {
                 <Pill label="Transfer"   val="transfer"   cur={opType} onChange={v=>{setOpType(v);clearAll();setParticular(trOp==="Debit"?"To Transfer":"By Transfer")}}/>
               </div>
             )}
-          </div>
 
-          {/* ── Transfer strip ── */}
-          {showTrStrip&&(
-            <div className="transfer-strip">
-              <div style={{display:"flex",alignItems:"center",gap:7}}>
-                <span className="strip-label">OP Type:</span>
-                <select id="opTypeSel" className={trOp==="Debit"?"debit":"credit"} value={trOp}
-                  onChange={e=>{setTrOp(e.target.value);setAcCode("");setAcName("");setTxnAmt("");
-                    setParticular(e.target.value==="Debit"?"To Transfer":"By Transfer");
-                    setCheqType("");setCheqSeries("");setCheqNo("");setCheqDate("");setAllCheqs([]);
-                    if(showLoanSec)setLoanVals(mkLoanInit())}}>
-                  <option value="Debit">DEBIT</option>
-                  <option value="Credit">CREDIT</option>
-                </select>
+            {/* Transfer strip — rendered inline, right of Operation Type pills */}
+            {showTrStrip&&(
+              <div className="transfer-strip">
+                <div style={{display:"flex",alignItems:"center",gap:7}}>
+                  <span className="strip-label">OP Type:</span>
+                  <select id="opTypeSel" className={trOp==="Debit"?"debit":"credit"} value={trOp}
+                    onChange={e=>{setTrOp(e.target.value);setAcCode("");setAcName("");setTxnAmt("");
+                      setParticular(e.target.value==="Debit"?"To Transfer":"By Transfer");
+                      setCheqType("");setCheqSeries("");setCheqNo("");setCheqDate("");setAllCheqs([]);
+                      if(showLoanSec)setLoanVals(mkLoanInit())}}>
+                    <option value="Debit">DEBIT</option>
+                    <option value="Credit">CREDIT</option>
+                  </select>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span className="strip-label">Total Debit:</span>
+                  <input className={`totals-inp${tallied?" tallied":""}`} readOnly value={totDr}/>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span className="strip-label">Total Credit:</span>
+                  <input className={`totals-inp${tallied?" tallied":""}`} readOnly value={totCr}/>
+                </div>
+                {tallied&&<span className="tallied-msg">✓ Transaction tallied</span>}
               </div>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
-                <span className="strip-label">Total Debit:</span>
-                <input className={`totals-inp${tallied?" tallied":""}`} readOnly value={totDr}/>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
-                <span className="strip-label">Total Credit:</span>
-                <input className={`totals-inp${tallied?" tallied":""}`} readOnly value={totCr}/>
-              </div>
-              {tallied&&<span className="tallied-msg">✓ Transaction tallied</span>}
-            </div>
-          )}
+            )}
+          </div>
 
           {/* ── Main fields ── */}
           <div className="fields-row">
+
             {/* Account Type */}
             <div className="field">
               <div className="field-label">Account Type</div>
@@ -465,12 +468,13 @@ export default function Transactions() {
               </select>
             </div>
 
-            {/* Account Code */}
+            {/* Account Code — hint sits below the code-wrap */}
             <div className="field">
-              <div className="field-label">{opType==="transfer"?(trOp==="Debit"?"Debit Account Code":"Credit Account Code"):"Account Code"}</div>
+              <div className="field-label">
+                {opType==="transfer"?(trOp==="Debit"?"Debit Account Code":"Credit Account Code"):"Account Code"}
+              </div>
               <div className="code-wrap">
                 <div className="search-wrap">
-                  
                   <input className="inp" style={{width:148}} placeholder="Enter account code"
                     value={acCode} maxLength={14} autoComplete="off"
                     onChange={e=>handleCodeChange(e.target.value)}
@@ -492,12 +496,15 @@ export default function Transactions() {
                 </div>
                 <button type="button" className="btn-dots" onClick={()=>setLkOn(true)}>···</button>
               </div>
-            
+              {/* hint below the code input + dots button */}
+              <span className="search-hint">Type last 7 digits to search</span>
             </div>
 
             {/* Account Name */}
             <div className="field" style={{flex:"1 1 160px"}}>
-              <div className="field-label">{opType==="transfer"?(trOp==="Debit"?"Debit Account Name":"Credit Account Name"):"Account Name"}</div>
+              <div className="field-label">
+                {opType==="transfer"?(trOp==="Debit"?"Debit Account Name":"Credit Account Name"):"Account Name"}
+              </div>
               <input className="inp" placeholder="Account Name" value={acName} readOnly/>
             </div>
 
