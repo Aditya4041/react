@@ -1,6 +1,7 @@
 /* ============================================
    TRANSACTIONS PAGE — Matches App Design System
    Fonts: DM Sans + Sora | Palette: #0f172a sidebar, #6366f1 accent
+   UPDATED: Input labels & styling from addCustomer.css
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -194,38 +195,42 @@
 .tx-field.narrow { flex: 0 0 140px; }
 .tx-field.wide   { flex: 0 0 220px; }
 
+/* ── LABEL STYLING FROM ADDCUSTOMER.CSS ── */
 .tx-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-2);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  min-width: 10px;
+  font-size: 13px;
+  margin-bottom: 3px;
+  font-weight: bold;
+  color: #373279;
+  letter-spacing: 0.1px;
 }
 
+/* ── INPUT STYLING FROM ADDCUSTOMER.CSS ── */
 .tx-input {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
+  width: 95%;
+  padding: 4px 6px;
+  border: 1px solid #888;
+  border-radius: 4px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-1);
-  background: #fafafa;
+  background: transparent;
   outline: none;
   transition: border-color var(--ease), box-shadow var(--ease);
   box-sizing: border-box;
 }
 
 .tx-input:focus {
-  border-color: var(--accent);
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  border-color: #373279;
+  background: transparent;
+  box-shadow: 0 0 0 2px rgba(55, 50, 121, 0.1);
 }
 
 .tx-input.ro {
   background: #f1f5f9;
   cursor: not-allowed;
   color: var(--text-2);
+  border-color: #ccc;
 }
 
 .tx-input.mono, .tx-input[class*="mono"] {
@@ -234,25 +239,32 @@
   letter-spacing: 0.5px;
 }
 
+/* ── SELECT STYLING ── */
 .tx-select {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
+  width: 95%;
+  padding: 4px 6px;
+  border: 1px solid #888;
+  border-radius: 4px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-1);
-  background: #fafafa;
+  background: transparent;
   outline: none;
   transition: border-color var(--ease);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23373279'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 8px center;
+  background-color: transparent;
+  padding-right: 26px;
 }
 
-.tx-select:focus { border-color: var(--accent); }
+.tx-select:focus { 
+  border-color: #373279;
+  box-shadow: 0 0 0 2px rgba(55, 50, 121, 0.1);
+}
 
 .tx-hint {
   font-size: 11px;
@@ -271,7 +283,7 @@
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  background: var(--accent);
+  background: #373279;
   color: white;
   border: none;
   border-radius: var(--radius-sm);
@@ -281,9 +293,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
 }
 
-.tx-lookup-btn:hover { background: #4f46e5; transform: translateY(-1px); }
+.tx-lookup-btn:hover { background: #2b0d73; transform: translateY(-1px); }
 
 /* ── Buttons ── */
 .tx-btn-row {
@@ -297,22 +310,23 @@
   width: 36px;
   height: 36px;
   background: #f1f5f9;
-  border: 1.5px solid var(--border);
+  border: 1px solid #888;
   border-radius: var(--radius-sm);
   font-size: 20px;
-  color: var(--text-2);
+  color: #373279;
   cursor: pointer;
   transition: all var(--ease);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
 }
 
-.tx-btn-add:hover { background: var(--accent-lt); border-color: var(--accent); color: var(--accent); }
+.tx-btn-add:hover { background: #e8e4fc; border-color: #373279; color: #373279; }
 
 .tx-btn-save {
   padding: 9px 22px;
-  background: var(--accent);
+  background: #373279;
   color: white;
   border: none;
   border-radius: var(--radius-sm);
@@ -320,12 +334,12 @@
   font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(99,102,241,0.25);
+  box-shadow: 0 3px 10px rgba(55, 50, 121, 0.25);
   transition: all var(--ease);
   white-space: nowrap;
 }
 
-.tx-btn-save:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(99,102,241,0.3); }
+.tx-btn-save:hover { background: #2b0d73; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(55, 50, 121, 0.3); }
 
 /* ── Search dropdown ── */
 .tx-search-drop {
@@ -334,7 +348,7 @@
   left: 0;
   right: 36px;
   background: white;
-  border: 1.5px solid var(--accent);
+  border: 1px solid #888;
   border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 200;
