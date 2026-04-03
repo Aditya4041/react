@@ -28,10 +28,7 @@
   --ease:     0.22s cubic-bezier(.4,0,.2,1);
 }
 
-/* Reset */
-.ml-root *, .ml-root *::before, .ml-root *::after {
-  box-sizing: border-box; margin: 0; padding: 0;
-}
+
 
 /* Shell */
 .ml-root {
