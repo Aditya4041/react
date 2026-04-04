@@ -1,383 +1,217 @@
 import React, { useState } from 'react';
 import './pages.css';
 
-const pigmyExportCSS = `
-  .pigmy-export-container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
+const S = `
+.pe-wrap { max-width: 780px; margin: 0 auto; }
+.pe-card {
+  background: #fff;
+  border: 1.5px solid #e0d7f8;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(99,88,210,.07);
+}
+.pe-card-head {
+  background: linear-gradient(90deg,#373279 0%,#5548a0 100%);
+  padding: 11px 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.pe-card-head span { color:#fff; font-size:13px; font-weight:700; letter-spacing:.2px; }
+.pe-card-body { padding: 20px; }
 
-  .pigmy-export-fieldset {
-    background-color: white;
-    border: 2px solid #BBADED;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-  }
+.pe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+.pe-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+@media(max-width:700px){ .pe-grid { grid-template-columns:1fr; } .pe-grid-4 { grid-template-columns:1fr 1fr; } }
 
-  .pigmy-export-legend {
-    font-size: 15px;
-    font-weight: bold;
-    padding: 0 8px;
-    color: #3D316F;
-    display: block;
-    margin-bottom: 12px;
-  }
+.pe-field { display:flex; flex-direction:column; gap:4px; }
+.pe-label {
+  font-size:10.5px; font-weight:700; color:#5548a0;
+  text-transform:uppercase; letter-spacing:.4px;
+}
+.pe-input-row { display:flex; gap:5px; align-items:center; }
+.pe-inp {
+  flex:1; padding:6px 10px;
+  border:1.5px solid #d4c8f5; border-radius:6px;
+  background:#f7f4ff; font-size:13px; color:#1e1b4b;
+  font-family:inherit; outline:none;
+  transition:border-color .15s;
+}
+.pe-inp:focus { border-color:#7c5ee8; background:#fff; }
+.pe-inp[readonly] { background:#f1f1f6; color:#888; cursor:default; }
+.pe-inp-sm { max-width:100px; }
+.pe-dot-btn {
+  width:30px; height:30px; border:none; border-radius:5px;
+  background:#373279; color:#fff; font-size:14px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:background .15s;
+}
+.pe-dot-btn:hover { background:#5548a0; }
 
-  .pigmy-export-form-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 12px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
+.pe-msg {
+  margin-bottom:14px; padding:9px 14px; border-radius:7px;
+  font-size:12.5px; font-weight:600; border:1.5px solid;
+  display:flex; align-items:center; gap:8px;
+}
+.pe-msg.info    { background:#eff6ff; border-color:#93c5fd; color:#1e40af; }
+.pe-msg.success { background:#f0fdf4; border-color:#86efac; color:#166534; }
+.pe-msg.error   { background:#fef2f2; border-color:#fca5a5; color:#991b1b; }
 
-  .pigmy-export-form-group {
-    flex: 1;
-    min-width: 150px;
-  }
+.pe-divider { height:1px; background:#ede9fc; margin:18px 0; }
 
-  .pigmy-export-label {
-    font-weight: bold;
-    font-size: 12px;
-    color: #3D316F;
-    margin-bottom: 5px;
-    display: block;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-
-  .pigmy-export-input {
-    width: 100%;
-    padding: 8px 10px;
-    border: 2px solid #C8B7F6;
-    border-radius: 6px;
-    background-color: #F4EDFF;
-    outline: none;
-    font-size: 13px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .pigmy-export-input:focus {
-    border-color: #8066E8;
-  }
-
-  .pigmy-export-input:read-only {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-    color: #666;
-  }
-
-  .pigmy-export-input-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .pigmy-export-icon-btn {
-    background-color: #2D2B80;
-    color: white;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .pigmy-export-icon-btn:hover {
-    background-color: #3D316F;
-  }
-
-  .pigmy-export-message-box {
-    margin-top: 12px;
-    padding: 10px;
-    border-radius: 6px;
-    border: 2px solid;
-    min-height: 45px;
-    font-size: 13px;
-    display: none;
-  }
-
-  .pigmy-export-message-box.show {
-    display: block;
-  }
-
-  .pigmy-export-message-box.success {
-    background: #f0fdf4;
-    border-color: #86efac;
-    color: #166534;
-  }
-
-  .pigmy-export-message-box.error {
-    background: #fef2f2;
-    border-color: #fca5a5;
-    color: #991b1b;
-  }
-
-  .pigmy-export-message-box.info {
-    background: #eff6ff;
-    border-color: #93c5fd;
-    color: #1e40af;
-  }
-
-  .pigmy-export-button-row {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-  }
-
-  .pigmy-export-btn {
-    padding: 10px 22px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    transition: all 0.3s ease;
-  }
-
-  .pigmy-export-btn-primary {
-    background: linear-gradient(135deg, #4a9eff 0%, #3d85d9 100%);
-    color: white;
-  }
-
-  .pigmy-export-btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(74, 158, 255, 0.4);
-  }
-
-  .pigmy-export-btn-validate {
-    background: #2b0d73;
-    color: white;
-  }
-
-  .pigmy-export-btn-validate:hover {
-    background: #1a0548;
-    transform: translateY(-1px);
-  }
-
-  .pigmy-export-btn-cancel {
-    background: #dc2626;
-    color: white;
-  }
-
-  .pigmy-export-btn-cancel:hover {
-    background: #b91c1c;
-  }
+.pe-btn-row {
+  display:flex; gap:10px; justify-content:center; padding-top:4px; flex-wrap:wrap;
+}
+.pe-btn {
+  padding:9px 22px; border:none; border-radius:7px;
+  font-size:13px; font-weight:700; cursor:pointer;
+  transition:all .15s; display:flex; align-items:center; gap:6px; font-family:inherit;
+}
+.pe-btn:active { transform:scale(.97); }
+.pe-btn-validate { background:#373279; color:#fff; }
+.pe-btn-validate:hover { background:#5548a0; }
+.pe-btn-export  { background:linear-gradient(135deg,#4a9eff,#3d85d9); color:#fff; }
+.pe-btn-export:hover { box-shadow:0 3px 10px rgba(74,158,255,.4); transform:translateY(-1px); }
+.pe-btn-export:disabled { opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+.pe-btn-cancel { background:#fef2f2; color:#b91c1c; border:1.5px solid #fca5a5; }
+.pe-btn-cancel:hover { background:#fecaca; }
+.pe-btn-back { background:#f1f5f9; color:#475569; border:1.5px solid #e2e8f0; }
+.pe-btn-back:hover { background:#e2e8f0; }
 `;
 
 export default function PigmyExport({ onBack }) {
-  const [branchCode, setBranchCode] = useState('0001');
-  const [branchName, setBranchName] = useState('');
-  const [productCode, setProductCode] = useState('');
-  const [productDescription, setProductDescription] = useState('');
-  const [agentId, setAgentId] = useState('');
-  const [agentName, setAgentName] = useState('');
-  
-  const [message, setMessage] = useState('Please fill in the required details and click Validate');
-  const [messageType, setMessageType] = useState('info');
-  const [showMessage, setShowMessage] = useState(true);
-  const [isValidated, setIsValidated] = useState(false);
+  const [branchCode,   setBranchCode]   = useState('0001');
+  const [branchName,   setBranchName]   = useState('');
+  const [productCode,  setProductCode]  = useState('');
+  const [productDesc,  setProductDesc]  = useState('');
+  const [agentId,      setAgentId]      = useState('');
+  const [agentName,    setAgentName]    = useState('');
+  const [msg,          setMsg]          = useState({ text: 'Fill in the details and click Validate.', type: 'info' });
+  const [validated,    setValidated]    = useState(false);
 
-  const showToast = (msg, type = 'info') => {
-    setMessage(msg);
-    setMessageType(type);
-    setShowMessage(true);
-  };
+  const icons = { info: 'ℹ️', success: '✅', error: '❌' };
 
-  const validateExport = () => {
-    const branchCodeTrim = branchCode.trim();
-    const productCodeTrim = productCode.trim();
-
-    if (!branchCodeTrim) {
-      showToast('Please enter Branch Code', 'error');
-      return;
-    }
-
-    if (!productCodeTrim) {
-      showToast('Please enter Product Code', 'error');
-      return;
-    }
-
-    showToast('Validating export parameters...', 'info');
-
+  function validate() {
+    if (!branchCode.trim()) { setMsg({ text: 'Branch Code is required.', type: 'error' }); return; }
+    if (!productCode.trim()) { setMsg({ text: 'Product Code is required.', type: 'error' }); return; }
+    setMsg({ text: 'Validating…', type: 'info' });
     setTimeout(() => {
       setBranchName('Main Branch - Gadag');
-      setProductDescription('Pigmy Collection');
-      showToast('Validation successful! Ready to export.', 'success');
-      setIsValidated(true);
-    }, 1000);
-  };
+      setProductDesc('Pigmy Collection');
+      setMsg({ text: 'Validation successful! Ready to export.', type: 'success' });
+      setValidated(true);
+    }, 800);
+  }
 
-  const exportToClient = () => {
-    if (!branchCode.trim() || !productCode.trim()) {
-      showToast('Please validate the form before exporting', 'error');
-      return;
-    }
-
-    showToast('Generating export file...', 'info');
-
+  function exportFile() {
+    if (!validated) { setMsg({ text: 'Please validate before exporting.', type: 'error' }); return; }
+    setMsg({ text: 'Generating export file…', type: 'info' });
     setTimeout(() => {
-      // Create sample CSV content
-      const csvContent =
-        'Account Code,Customer Name,Agent ID,Collection Date,Amount\n' +
+      const csv =
+        'Account Code,Customer Name,Agent ID,Date,Amount\n' +
         '000200010001,Test Customer 1,AG001,30/01/2026,500.00\n' +
         '000200010002,Test Customer 2,AG001,30/01/2026,750.00\n' +
-        '000200010003,Test Customer 3,AG001,30/01/2026,1000.00\n' +
-        '000200010004,Test Customer 4,AG001,30/01/2026,600.00\n' +
-        '000200010005,Test Customer 5,AG001,30/01/2026,800.00';
+        '000200010003,Test Customer 3,AG001,30/01/2026,1000.00';
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = `pigmy_export_${Date.now()}.csv`;
+      a.click();
+      setMsg({ text: 'Export downloaded successfully!', type: 'success' });
+    }, 1000);
+  }
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-
-      link.setAttribute('href', url);
-      link.setAttribute('download', `pigmy_export_${new Date().getTime()}.csv`);
-      link.style.visibility = 'hidden';
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      showToast('Export file downloaded successfully!', 'success');
-    }, 1500);
-  };
-
-  const cancelExport = () => {
-    if (window.confirm('Are you sure you want to cancel?')) {
-      setBranchCode('0001');
-      setBranchName('');
-      setProductCode('');
-      setProductDescription('');
-      setAgentId('');
-      setAgentName('');
-      setMessage('Please fill in the required details and click Validate');
-      setMessageType('info');
-      setIsValidated(false);
-    }
-  };
+  function cancel() {
+    setBranchCode('0001'); setBranchName(''); setProductCode('');
+    setProductDesc(''); setAgentId(''); setAgentName('');
+    setValidated(false);
+    setMsg({ text: 'Fill in the details and click Validate.', type: 'info' });
+  }
 
   return (
     <div className="pf-root">
+      <style>{S}</style>
       <div className="pf-topbar">
         <span className="pf-tb-icon">📤</span>
         <span className="pf-tb-title">Transaction Export</span>
-        <span className="pf-tb-badge">Module</span>
+        <span className="pf-tb-badge">Pigmy</span>
       </div>
 
-      <style>{pigmyExportCSS}</style>
+      <div className="pf-body">
+        <div className="pe-wrap">
 
-      <div className="pf-body pigmy-export-container">
-        {showMessage && (
-          <div className={`pigmy-export-message-box show ${messageType}`}>
-            <strong>Message:</strong> {message}
-          </div>
-        )}
-
-        <div className="pigmy-export-fieldset">
-          <span className="pigmy-export-legend">Transaction Details</span>
-
-          {/* Row 1: Branch Code, Branch Name, Product Code, Product Description */}
-          <div className="pigmy-export-form-row">
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Branch Code</label>
-              <div className="pigmy-export-input-box">
-                <input
-                  type="text"
-                  className="pigmy-export-input"
-                  value={branchCode}
-                  onChange={(e) => setBranchCode(e.target.value)}
-                  maxLength={4}
-                />
-                <button className="pigmy-export-icon-btn">…</button>
-              </div>
-            </div>
-
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Branch Name</label>
-              <input
-                type="text"
-                className="pigmy-export-input"
-                value={branchName}
-                readOnly
-              />
-            </div>
-
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Product Code</label>
-              <div className="pigmy-export-input-box">
-                <input
-                  type="text"
-                  className="pigmy-export-input"
-                  value={productCode}
-                  onChange={(e) => setProductCode(e.target.value)}
-                  maxLength={3}
-                />
-                <button className="pigmy-export-icon-btn">…</button>
-              </div>
-            </div>
-
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Description</label>
-              <input
-                type="text"
-                className="pigmy-export-input"
-                value={productDescription}
-                readOnly
-              />
-            </div>
+          {/* Message */}
+          <div className={`pe-msg ${msg.type}`}>
+            <span>{icons[msg.type]}</span> {msg.text}
           </div>
 
-          {/* Row 2: Agent ID, Agent Name */}
-          <div className="pigmy-export-form-row">
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Agent ID</label>
-              <div className="pigmy-export-input-box">
-                <input
-                  type="text"
-                  className="pigmy-export-input"
-                  value={agentId}
-                  onChange={(e) => setAgentId(e.target.value)}
-                />
-                <button className="pigmy-export-icon-btn">…</button>
+          <div className="pe-card">
+            <div className="pe-card-head">
+              <span>📋</span>
+              <span>Transaction Details</span>
+            </div>
+            <div className="pe-card-body">
+              <div className="pe-grid pe-grid-4">
+
+                {/* Branch Code */}
+                <div className="pe-field">
+                  <label className="pe-label">Branch Code *</label>
+                  <div className="pe-input-row">
+                    <input className="pe-inp pe-inp-sm" value={branchCode}
+                      onChange={e => setBranchCode(e.target.value)} maxLength={4} />
+                    <button className="pe-dot-btn">…</button>
+                  </div>
+                </div>
+
+                {/* Branch Name */}
+                <div className="pe-field">
+                  <label className="pe-label">Branch Name</label>
+                  <input className="pe-inp" value={branchName} readOnly placeholder="Auto-filled" />
+                </div>
+
+                {/* Product Code */}
+                <div className="pe-field">
+                  <label className="pe-label">Product Code *</label>
+                  <div className="pe-input-row">
+                    <input className="pe-inp pe-inp-sm" value={productCode}
+                      onChange={e => setProductCode(e.target.value)} maxLength={3} />
+                    <button className="pe-dot-btn">…</button>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="pe-field">
+                  <label className="pe-label">Description</label>
+                  <input className="pe-inp" value={productDesc} readOnly placeholder="Auto-filled" />
+                </div>
+
+                {/* Agent ID */}
+                <div className="pe-field">
+                  <label className="pe-label">Agent ID</label>
+                  <div className="pe-input-row">
+                    <input className="pe-inp" value={agentId}
+                      onChange={e => setAgentId(e.target.value)} />
+                    <button className="pe-dot-btn">…</button>
+                  </div>
+                </div>
+
+                {/* Agent Name */}
+                <div className="pe-field">
+                  <label className="pe-label">Agent Name</label>
+                  <input className="pe-inp" value={agentName} readOnly placeholder="Auto-filled" />
+                </div>
+
               </div>
             </div>
-
-            <div className="pigmy-export-form-group">
-              <label className="pigmy-export-label">Agent Name</label>
-              <input
-                type="text"
-                className="pigmy-export-input"
-                value={agentName}
-                readOnly
-              />
-            </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="pigmy-export-button-row">
-          <button className="pigmy-export-btn pigmy-export-btn-validate" onClick={validateExport}>
-            ✓ Validate
-          </button>
-          <button
-            className="pigmy-export-btn pigmy-export-btn-primary"
-            onClick={exportToClient}
-            disabled={!isValidated}
-            style={{ opacity: !isValidated ? 0.5 : 1 }}
-          >
-            📥 Client_Export
-          </button>
-          <button className="pigmy-export-btn pigmy-export-btn-cancel" onClick={cancelExport}>
-            Cancel
-          </button>
-          <button className="pigmy-export-btn pigmy-export-btn-cancel" onClick={onBack}>
-            Back
-          </button>
+          {/* Action Buttons */}
+          <div className="pe-btn-row" style={{ marginTop: 16 }}>
+            <button className="pe-btn pe-btn-validate" onClick={validate}>✓ Validate</button>
+            <button className="pe-btn pe-btn-export" onClick={exportFile} disabled={!validated}>
+              📥 Export to Client
+            </button>
+            <button className="pe-btn pe-btn-cancel" onClick={cancel}>✕ Cancel</button>
+            <button className="pe-btn pe-btn-back" onClick={onBack}>← Back</button>
+          </div>
+
         </div>
       </div>
     </div>
