@@ -18,91 +18,9 @@ function PageFrame({ title, icon, children }) {
 }
 
 /* ════════════════════════════════════════════
-   AUTHORIZATION MODULE — Card Dashboard
+   AUTHORIZATION MODULE
 ════════════════════════════════════════════ */
 const AUTH_CSS = `
-.auth-dash { max-width: 900px; margin: 0 auto; }
-
-.auth-card-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 800px) { .auth-card-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 500px) { .auth-card-grid { grid-template-columns: 1fr; } }
-
-.auth-card {
-  background: #fff;
-  border: 1.5px solid #e0d7f8;
-  border-radius: 12px;
-  padding: 24px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 2px 8px rgba(55,50,121,0.06);
-  position: relative;
-  overflow: hidden;
-  text-align: center;
-}
-
-.auth-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--auth-accent, #6366f1);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.auth-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(55,50,121,0.14);
-  border-color: var(--auth-accent, #6366f1);
-}
-
-.auth-card:hover::before { opacity: 1; }
-.auth-card:active { transform: scale(0.97); }
-
-.auth-card-icon {
-  width: 56px; height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  flex-shrink: 0;
-  transition: transform 0.2s;
-}
-
-.auth-card:hover .auth-card-icon { transform: scale(1.08); }
-
-.auth-card-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.3;
-}
-
-.auth-card-desc {
-  font-size: 12px;
-  color: #94a3b8;
-  line-height: 1.5;
-}
-
-.auth-card-arrow {
-  font-size: 18px;
-  color: #cbd5e1;
-  transition: all 0.2s;
-}
-.auth-card:hover .auth-card-arrow { color: var(--auth-accent, #6366f1); transform: translateX(3px); }
-
-/* ── Detail placeholder ── */
 .auth-detail-back {
   display: inline-flex;
   align-items: center;
@@ -132,7 +50,8 @@ const AUTH_CSS = `
 }
 .auth-coming-icon {
   font-size: 52px;
-  width: 90px; height: 90px;
+  width: 90px;
+  height: 90px;
   background: #eef2ff;
   border-radius: 50%;
   display: flex;
@@ -229,35 +148,47 @@ function AuthDetail({ card, onBack }) {
 
 export function Authorization() {
   const [active, setActive] = useState(null);
-
   const activeCard = AUTH_CARDS.find(c => c.id === active);
 
   return (
     <PageFrame title="Authorization" icon="🔐">
       <style>{AUTH_CSS}</style>
-      <div className="auth-dash">
-        {activeCard ? (
-          <AuthDetail card={activeCard} onBack={() => setActive(null)} />
-        ) : (
-          <div className="auth-card-grid">
-            {AUTH_CARDS.map(card => (
+      {activeCard ? (
+        <AuthDetail card={activeCard} onBack={() => setActive(null)} />
+      ) : (
+        <div className="pf-card-grid">
+          {AUTH_CARDS.map(card => (
+            <div
+              key={card.id}
+              className="pf-type-card"
+              style={{ color: card.accent }}
+              onClick={() => setActive(card.id)}
+            >
               <div
-                key={card.id}
-                className="auth-card"
-                style={{ '--auth-accent': card.accent }}
-                onClick={() => setActive(card.id)}
+                className="pf-type-icon"
+                style={{ background: card.bg, color: card.accent }}
               >
-                <div className="auth-card-icon" style={{ background: card.bg, color: card.accent }}>
-                  {card.icon}
-                </div>
-                <div className="auth-card-title">{card.title}</div>
-                <div className="auth-card-desc">{card.desc}</div>
-                <div className="auth-card-arrow">→</div>
+                {card.icon}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="pf-type-info">
+                <h4 className="pf-type-title">{card.title}</h4>
+                <p className="pf-type-desc">{card.desc}</p>
+              </div>
+              <button
+                className="pf-btn pf-btn-outline"
+                style={{
+                  color: card.accent,
+                  borderColor: card.accent + '60',
+                  width: '100%',
+                  justifyContent: 'center',
+                }}
+              >
+                Open →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </PageFrame>
   );
 }
@@ -281,7 +212,12 @@ export function OpenAccount() {
               <h4 className="pf-type-title">{c.title}</h4>
               <p className="pf-type-desc">{c.desc}</p>
             </div>
-            <button className="pf-btn pf-btn-outline" style={{ color: c.color, borderColor: c.color + '60' }}>Open →</button>
+            <button
+              className="pf-btn pf-btn-outline"
+              style={{ color: c.color, borderColor: c.color + '60', width: '100%', justifyContent: 'center' }}
+            >
+              Open →
+            </button>
           </div>
         ))}
       </div>
