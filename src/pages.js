@@ -2,6 +2,7 @@ import React from 'react';
 import './pages.css';
 export { default as Transactions } from './Transactions';
 export { default as AddCustomer } from './AddCustomer';
+export { default as Pigmy } from './Pigmy';
 
 function PageFrame({ title, icon, children }) {
   return (
@@ -101,6 +102,5 @@ function ComingSoon({ title, icon, desc }) {
 export function Master()     { return <ComingSoon title="Master"  icon="⚙️" desc="Configure system masters — interest rates, charges, product types and more." />; }
 export function ViewModule() { return <ComingSoon title="View"    icon="👁️" desc="Search and view customer records, accounts, and transaction history." />; }
 export function Reports()    { return <ComingSoon title="Reports" icon="📊" desc="Generate branch reports, MIS statements, and regulatory filings." />; }
-export function Pigmy()      { return <ComingSoon title="Pigmy"   icon="🐷" desc="Manage daily Pigmy collection agents, accounts and settlements." />; }
 export function Utility()    { return <ComingSoon title="Utility" icon="🔧" desc="System utilities — day-end, backup, and maintenance operations." />; }
 export function Shares()     { return <ComingSoon title="Shares"  icon="📈" desc="Manage member shares, dividends, and equity transactions." />; }

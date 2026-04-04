@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './AddCustomer.css';
 
 /* ─── Tab config ─── */
@@ -159,7 +159,7 @@ function validateTabFields(tab, form, kyc, uploads) {
 }
 
 /* ─── KYC Document Row ─── */
-function KycRow({ checked, onToggle, label, hasExpiry, expiry, onExpiry, docNo, onDocNo, docNoLabel = 'Document No' }) {
+function KycRow({ checked, onToggle, label, hasExpiry, expiry, onExpiry, docNo, onDocNo, docNoLabel = 'Document No', showDocNo = true }) {
   return (
     <tr>
       <td><input type="checkbox" className="ac-checkbox" checked={checked} onChange={onToggle} /></td>
@@ -173,40 +173,152 @@ function KycRow({ checked, onToggle, label, hasExpiry, expiry, onExpiry, docNo, 
           disabled={!hasExpiry || !checked}
         />
       </td>
-      <td>
-        <input
-          type="text"
-          className="ac-input ac-input--sm"
-          placeholder={docNoLabel}
-          value={docNo || ''}
-          onChange={e => onDocNo(e.target.value)}
-          disabled={!checked}
-        />
-      </td>
+      {showDocNo && (
+        <td>
+          <input
+            type="text"
+            className="ac-input ac-input--sm"
+            placeholder={docNoLabel}
+            value={docNo || ''}
+            onChange={e => onDocNo && onDocNo(e.target.value)}
+            disabled={!checked}
+          />
+        </td>
+      )}
     </tr>
   );
 }
 
-/* ─── Upload Card ─── */
-function UploadCard({ label, preview, onFile, onCamera, error }) {
-  const inputRef = useRef();
+/* ════════════════════════════════════════════
+   CAMERA MODAL COMPONENT
+════════════════════════════════════════════ */
+function CameraModal({ title, onCapture, onClose, aspectRatio }) {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const [error, setError] = useState('');
+  const [streaming, setStreaming] = useState(false);
+
+  useEffect(() => {
+    startCamera();
+    return () => stopCamera();
+    // eslint-disable-next-line
+  }, []);
+
+  function startCamera() {
+    const facingMode = title.toLowerCase().includes('signature') ? 'environment' : 'user';
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode } })
+      .then(stream => {
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setStreaming(true);
+        }
+      })
+      .catch(err => setError('Camera error: ' + err.message));
+  }
+
+  function stopCamera() {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+  }
+
+  function capture() {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    stopCamera();
+    onCapture(dataUrl);
+  }
+
+  function handleClose() {
+    stopCamera();
+    onClose();
+  }
+
   return (
-    <div className={`ac-upload-card${error ? ' ac-upload-card--error' : ''}`}>
-      <h3 className="ac-upload-title">{label}</h3>
-      <div className="ac-upload-preview">
-        {preview
-          ? <img src={preview} alt="preview" className="ac-upload-img" />
-          : <span className="ac-upload-placeholder">📷</span>}
+    <div className="ac-overlay" onClick={handleClose}>
+      <div className="ac-modal" style={{ maxWidth: 520, width: '92%' }} onClick={e => e.stopPropagation()}>
+        <h3 className="ac-modal-title" style={{ marginBottom: 12 }}>📷 {title}</h3>
+        {error ? (
+          <p style={{ color: '#ef4444', marginBottom: 16, fontSize: 13 }}>{error}</p>
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            style={{ width: '100%', borderRadius: 8, background: '#000', marginBottom: 14, maxHeight: 320, objectFit: 'cover' }}
+          />
+        )}
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+          {!error && streaming && (
+            <button className="ac-btn ac-btn--primary" type="button" onClick={capture}>
+              📸 Capture
+            </button>
+          )}
+          <button className="ac-btn ac-btn--ghost" type="button" onClick={handleClose}>
+            Cancel
+          </button>
+        </div>
       </div>
-      <p className="ac-upload-hint">Drag & drop or use buttons below</p>
-      <div className="ac-upload-btns">
-        <button type="button" className="ac-btn ac-btn--outline" onClick={onCamera}>📸 Camera</button>
-        <button type="button" className="ac-btn ac-btn--outline" onClick={() => inputRef.current.click()}>📁 Browse</button>
-      </div>
-      <input ref={inputRef} type="file" accept="image/jpeg,image/jpg" style={{ display: 'none' }}
-        onChange={e => e.target.files[0] && onFile(e.target.files[0])} />
-      {error && <span className="ac-error-text">⚠ {error}</span>}
     </div>
+  );
+}
+
+/* ─── Upload Card ─── */
+function UploadCard({ label, preview, onFile, onCameraCapture, error }) {
+  const inputRef = useRef();
+  const [showCamera, setShowCamera] = useState(false);
+
+  function handleCapture(dataUrl) {
+    setShowCamera(false);
+    onCameraCapture(dataUrl);
+  }
+
+  return (
+    <>
+      <div className={`ac-upload-card${error ? ' ac-upload-card--error' : ''}`}>
+        <h3 className="ac-upload-title">{label}</h3>
+        <div className="ac-upload-preview">
+          {preview
+            ? <img src={preview} alt="preview" className="ac-upload-img" />
+            : <span className="ac-upload-placeholder">📷</span>}
+        </div>
+        <p className="ac-upload-hint">Drag & drop or use buttons below</p>
+        <div className="ac-upload-btns">
+          <button type="button" className="ac-btn ac-btn--outline" onClick={() => setShowCamera(true)}>
+            📸 Camera
+          </button>
+          <button type="button" className="ac-btn ac-btn--outline" onClick={() => inputRef.current.click()}>
+            📁 Browse
+          </button>
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/jpg"
+          style={{ display: 'none' }}
+          onChange={e => e.target.files[0] && onFile(e.target.files[0])}
+        />
+        {error && <span className="ac-error-text">⚠ {error}</span>}
+      </div>
+
+      {showCamera && (
+        <CameraModal
+          title={label}
+          onCapture={handleCapture}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -270,19 +382,31 @@ export default function AddCustomer() {
     officePhone: '',
   });
 
-  /* ─── KYC state ─── */
+  /* ─── KYC state — ID Proof ─── */
   const [kyc, setKyc] = useState({
+    // ID Proof
     passport: false, passportExpiry: '', passportNo: '',
     pan: false, panNo: '',
     voterid: false, voteridNo: '',
     dl: false, dlExpiry: '', dlNo: '',
     aadharKyc: false, aadharKycNo: '',
     nrega: false, nregaNo: '',
+    // Address Proof
     telephone: false, telephoneExpiry: '', telephoneNo: '',
     bank: false, bankExpiry: '', bankNo: '',
     govt: false, govtExpiry: '', govtNo: '',
     electricity: false, electricityExpiry: '', electricityNo: '',
     ration: false, rationNo: '',
+    // Proprietary Concern
+    rent: false, rentExpiry: '',
+    cert: false, certExpiry: '',
+    tax: false, taxExpiry: '',
+    cst: false, cstExpiry: '',
+    reg: false, regExpiry: '',
+    // Business Concern
+    inc: false, incExpiry: '',
+    board: false, boardExpiry: '',
+    poa: false, poaExpiry: '',
   });
 
   /* ─── Upload state ─── */
@@ -305,6 +429,8 @@ export default function AddCustomer() {
   useEffect(() => {
     if (form.aadharNo.length > 0) {
       setKyc(k => ({ ...k, aadharKyc: true, aadharKycNo: form.aadharNo }));
+    } else {
+      setKyc(k => ({ ...k, aadharKyc: false, aadharKycNo: '' }));
     }
   }, [form.aadharNo]);
 
@@ -312,30 +438,41 @@ export default function AddCustomer() {
   const setFv = (key) => (val) => setForm(f => ({ ...f, [key]: val }));
   const setK = (key) => (val) => setKyc(k => ({ ...k, [key]: val }));
 
-  /* ─── Image processing ─── */
+  /* ─── Image processing from file ─── */
   function processImage(file, type) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const config = type === 'photo' ? { w: 413, h: 531 } : { w: 600, h: 200 };
-        canvas.width = config.w; canvas.height = config.h;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFF'; ctx.fillRect(0, 0, config.w, config.h);
-        const sr = img.width / img.height;
-        const tr = config.w / config.h;
-        let sx = 0, sy = 0, sw = img.width, sh = img.height;
-        if (sr > tr) { sw = sh * tr; sx = (img.width - sw) / 2; }
-        else { sh = sw / tr; sy = (img.height - sh) / 2; }
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, config.w, config.h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        setUploads(u => ({ ...u, [type]: dataUrl }));
-        setErrors(er => { const c = { ...er }; delete c[type]; return c; });
-      };
-      img.src = e.target.result;
+      compressAndSet(e.target.result, type);
     };
     reader.readAsDataURL(file);
+  }
+
+  /* ─── Image processing from camera dataUrl ─── */
+  function processCameraImage(dataUrl, type) {
+    compressAndSet(dataUrl, type);
+  }
+
+  function compressAndSet(src, type) {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const config = type === 'photo' ? { w: 413, h: 531 } : { w: 600, h: 200 };
+      canvas.width = config.w;
+      canvas.height = config.h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(0, 0, config.w, config.h);
+      const sr = img.width / img.height;
+      const tr = config.w / config.h;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (sr > tr) { sw = sh * tr; sx = (img.width - sw) / 2; }
+      else { sh = sw / tr; sy = (img.height - sh) / 2; }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, config.w, config.h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      setUploads(u => ({ ...u, [type]: dataUrl }));
+      setErrors(er => { const c = { ...er }; delete c[type]; return c; });
+    };
+    img.src = src;
   }
 
   /* ─── Navigation ─── */
@@ -590,78 +727,132 @@ export default function AddCustomer() {
 
         {/* ════ TAB 4: KYC Documents ════ */}
         {currentTab === 4 && (
-          <div className="ac-section-card">
-            <div className="ac-section-header">
-              <span className="ac-section-dot" />
-              <span className="ac-section-title">KYC Document Details</span>
-            </div>
-
-            {errors.idProof && <div className="ac-kyc-error">⚠ {errors.idProof}</div>}
-            {errors.addrProof && <div className="ac-kyc-error">⚠ {errors.addrProof}</div>}
-
-            <div className="ac-kyc-grid">
-              {/* ID Proof */}
-              <div>
-                <h4 className="ac-kyc-section-title">ID Proof</h4>
-                <table className="ac-kyc-table">
-                  <thead>
-                    <tr>
-                      <th>✔</th><th>Document</th><th>Expiry Date</th><th>Document No</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <KycRow checked={kyc.passport} onToggle={() => setK('passport')(!kyc.passport)}
-                      label="Passport" hasExpiry expiry={kyc.passportExpiry}
-                      onExpiry={setK('passportExpiry')} docNo={kyc.passportNo} onDocNo={setK('passportNo')} />
-                    <KycRow checked={kyc.pan} onToggle={() => setK('pan')(!kyc.pan)}
-                      label="PAN Card" hasExpiry={false}
-                      docNo={kyc.panNo} onDocNo={setK('panNo')} />
-                    <KycRow checked={kyc.voterid} onToggle={() => setK('voterid')(!kyc.voterid)}
-                      label="Election Card" hasExpiry={false}
-                      docNo={kyc.voteridNo} onDocNo={setK('voteridNo')} />
-                    <KycRow checked={kyc.dl} onToggle={() => setK('dl')(!kyc.dl)}
-                      label="Driving License" hasExpiry expiry={kyc.dlExpiry}
-                      onExpiry={setK('dlExpiry')} docNo={kyc.dlNo} onDocNo={setK('dlNo')} />
-                    <KycRow checked={kyc.aadharKyc} onToggle={() => {}}
-                      label="Aadhar Card" hasExpiry={false}
-                      docNo={kyc.aadharKycNo} onDocNo={setK('aadharKycNo')} />
-                    <KycRow checked={kyc.nrega} onToggle={() => setK('nrega')(!kyc.nrega)}
-                      label="NREGA Job Card" hasExpiry={false}
-                      docNo={kyc.nregaNo} onDocNo={setK('nregaNo')} />
-                  </tbody>
-                </table>
+          <>
+            {/* ── Row 1: ID Proof + Address Proof ── */}
+            <div className="ac-section-card">
+              <div className="ac-section-header">
+                <span className="ac-section-dot" />
+                <span className="ac-section-title">KYC Document Details</span>
               </div>
 
-              {/* Address Proof */}
-              <div>
-                <h4 className="ac-kyc-section-title">Address Proof</h4>
-                <table className="ac-kyc-table">
-                  <thead>
-                    <tr>
-                      <th>✔</th><th>Document</th><th>Expiry Date</th><th>Document No</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <KycRow checked={kyc.telephone} onToggle={() => setK('telephone')(!kyc.telephone)}
-                      label="Telephone Bill" hasExpiry expiry={kyc.telephoneExpiry}
-                      onExpiry={setK('telephoneExpiry')} docNo={kyc.telephoneNo} onDocNo={setK('telephoneNo')} />
-                    <KycRow checked={kyc.bank} onToggle={() => setK('bank')(!kyc.bank)}
-                      label="Bank Statement" hasExpiry expiry={kyc.bankExpiry}
-                      onExpiry={setK('bankExpiry')} docNo={kyc.bankNo} onDocNo={setK('bankNo')} />
-                    <KycRow checked={kyc.govt} onToggle={() => setK('govt')(!kyc.govt)}
-                      label="Govt. Documents" hasExpiry expiry={kyc.govtExpiry}
-                      onExpiry={setK('govtExpiry')} docNo={kyc.govtNo} onDocNo={setK('govtNo')} />
-                    <KycRow checked={kyc.electricity} onToggle={() => setK('electricity')(!kyc.electricity)}
-                      label="Electricity Bill" hasExpiry expiry={kyc.electricityExpiry}
-                      onExpiry={setK('electricityExpiry')} docNo={kyc.electricityNo} onDocNo={setK('electricityNo')} />
-                    <KycRow checked={kyc.ration} onToggle={() => setK('ration')(!kyc.ration)}
-                      label="Ration Card" hasExpiry={false}
-                      docNo={kyc.rationNo} onDocNo={setK('rationNo')} />
-                  </tbody>
-                </table>
+              {errors.idProof && <div className="ac-kyc-error">⚠ {errors.idProof}</div>}
+              {errors.addrProof && <div className="ac-kyc-error">⚠ {errors.addrProof}</div>}
+
+              <div className="ac-kyc-grid">
+                {/* ID Proof */}
+                <div>
+                  <h4 className="ac-kyc-section-title">Savings Account (ID Proof)</h4>
+                  <table className="ac-kyc-table">
+                    <thead>
+                      <tr><th>✔</th><th>Document</th><th>Expiry Date</th><th>Document No</th></tr>
+                    </thead>
+                    <tbody>
+                      <KycRow checked={kyc.passport} onToggle={() => setK('passport')(!kyc.passport)}
+                        label="Passport" hasExpiry expiry={kyc.passportExpiry}
+                        onExpiry={setK('passportExpiry')} docNo={kyc.passportNo} onDocNo={setK('passportNo')} />
+                      <KycRow checked={kyc.pan} onToggle={() => setK('pan')(!kyc.pan)}
+                        label="PAN Card" hasExpiry={false}
+                        docNo={kyc.panNo} onDocNo={setK('panNo')} />
+                      <KycRow checked={kyc.voterid} onToggle={() => setK('voterid')(!kyc.voterid)}
+                        label="Election Card" hasExpiry={false}
+                        docNo={kyc.voteridNo} onDocNo={setK('voteridNo')} />
+                      <KycRow checked={kyc.dl} onToggle={() => setK('dl')(!kyc.dl)}
+                        label="Driving License" hasExpiry expiry={kyc.dlExpiry}
+                        onExpiry={setK('dlExpiry')} docNo={kyc.dlNo} onDocNo={setK('dlNo')} />
+                      <KycRow
+                        checked={kyc.aadharKyc}
+                        onToggle={() => {/* controlled by aadhar field */}}
+                        label="Aadhar Card" hasExpiry={false}
+                        docNo={kyc.aadharKycNo} onDocNo={setK('aadharKycNo')} />
+                      <KycRow checked={kyc.nrega} onToggle={() => setK('nrega')(!kyc.nrega)}
+                        label="NREGA Job Card" hasExpiry={false}
+                        docNo={kyc.nregaNo} onDocNo={setK('nregaNo')} />
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Address Proof */}
+                <div>
+                  <h4 className="ac-kyc-section-title">Savings Account (Address Proof)</h4>
+                  <table className="ac-kyc-table">
+                    <thead>
+                      <tr><th>✔</th><th>Document</th><th>Expiry Date</th><th>Document No</th></tr>
+                    </thead>
+                    <tbody>
+                      <KycRow checked={kyc.telephone} onToggle={() => setK('telephone')(!kyc.telephone)}
+                        label="Telephone Bill" hasExpiry expiry={kyc.telephoneExpiry}
+                        onExpiry={setK('telephoneExpiry')} docNo={kyc.telephoneNo} onDocNo={setK('telephoneNo')} />
+                      <KycRow checked={kyc.bank} onToggle={() => setK('bank')(!kyc.bank)}
+                        label="Bank Statement" hasExpiry expiry={kyc.bankExpiry}
+                        onExpiry={setK('bankExpiry')} docNo={kyc.bankNo} onDocNo={setK('bankNo')} />
+                      <KycRow checked={kyc.govt} onToggle={() => setK('govt')(!kyc.govt)}
+                        label="Govt. Documents" hasExpiry expiry={kyc.govtExpiry}
+                        onExpiry={setK('govtExpiry')} docNo={kyc.govtNo} onDocNo={setK('govtNo')} />
+                      <KycRow checked={kyc.electricity} onToggle={() => setK('electricity')(!kyc.electricity)}
+                        label="Electricity Bill" hasExpiry expiry={kyc.electricityExpiry}
+                        onExpiry={setK('electricityExpiry')} docNo={kyc.electricityNo} onDocNo={setK('electricityNo')} />
+                      <KycRow checked={kyc.ration} onToggle={() => setK('ration')(!kyc.ration)}
+                        label="Ration Card" hasExpiry={false}
+                        docNo={kyc.rationNo} onDocNo={setK('rationNo')} />
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* ── Row 2: Proprietary Concern + Business Concern ── */}
+            <div className="ac-section-card">
+              <div className="ac-kyc-grid">
+                {/* Proprietary Concern */}
+                <div>
+                  <h4 className="ac-kyc-section-title">Accounts of Proprietary Concern</h4>
+                  <table className="ac-kyc-table">
+                    <thead>
+                      <tr><th>✔</th><th>Document</th><th>Expiry Date</th></tr>
+                    </thead>
+                    <tbody>
+                      <KycRow checked={kyc.rent} onToggle={() => setK('rent')(!kyc.rent)}
+                        label="Registered Rent Agreement Copy" hasExpiry expiry={kyc.rentExpiry}
+                        onExpiry={setK('rentExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.cert} onToggle={() => setK('cert')(!kyc.cert)}
+                        label="Certificate / License" hasExpiry expiry={kyc.certExpiry}
+                        onExpiry={setK('certExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.tax} onToggle={() => setK('tax')(!kyc.tax)}
+                        label="Sales and Income Tax Returns" hasExpiry expiry={kyc.taxExpiry}
+                        onExpiry={setK('taxExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.cst} onToggle={() => setK('cst')(!kyc.cst)}
+                        label="CST / VAT Certificate" hasExpiry expiry={kyc.cstExpiry}
+                        onExpiry={setK('cstExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.reg} onToggle={() => setK('reg')(!kyc.reg)}
+                        label="License issued by Registering Authority" hasExpiry expiry={kyc.regExpiry}
+                        onExpiry={setK('regExpiry')} showDocNo={false} />
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Business Concern */}
+                <div>
+                  <h4 className="ac-kyc-section-title">Business Concern</h4>
+                  <table className="ac-kyc-table">
+                    <thead>
+                      <tr><th>✔</th><th>Document</th><th>Expiry Date</th></tr>
+                    </thead>
+                    <tbody>
+                      <KycRow checked={kyc.inc} onToggle={() => setK('inc')(!kyc.inc)}
+                        label="Certificate of Incorporation" hasExpiry expiry={kyc.incExpiry}
+                        onExpiry={setK('incExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.board} onToggle={() => setK('board')(!kyc.board)}
+                        label="Resolution of the Board of Directors" hasExpiry expiry={kyc.boardExpiry}
+                        onExpiry={setK('boardExpiry')} showDocNo={false} />
+                      <KycRow checked={kyc.poa} onToggle={() => setK('poa')(!kyc.poa)}
+                        label="Power of Attorney granted to its Managers" hasExpiry expiry={kyc.poaExpiry}
+                        onExpiry={setK('poaExpiry')} showDocNo={false} />
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {/* ════ TAB 5: Photo & Signature ════ */}
@@ -677,14 +868,14 @@ export default function AddCustomer() {
                 preview={uploads.photo}
                 error={errors.photo}
                 onFile={f => processImage(f, 'photo')}
-                onCamera={() => alert('Camera not supported in this demo')}
+                onCameraCapture={dataUrl => processCameraImage(dataUrl, 'photo')}
               />
               <UploadCard
                 label="Upload Signature"
                 preview={uploads.signature}
                 error={errors.signature}
                 onFile={f => processImage(f, 'signature')}
-                onCamera={() => alert('Camera not supported in this demo')}
+                onCameraCapture={dataUrl => processCameraImage(dataUrl, 'signature')}
               />
             </div>
           </div>
